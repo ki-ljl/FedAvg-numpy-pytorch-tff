@@ -2,7 +2,7 @@
 # FedAvg-numpy-pytorch-tff
 Three implementations of FedAvg: numpy, pytorch and tensorflow federated.
 
-# environment
+# Environment
 numpy==1.18.5
 
 pytorch==1.10.1+cu111
