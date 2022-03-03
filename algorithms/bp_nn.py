@@ -19,6 +19,7 @@ import os
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 clients_wind = ['Task1_W_Zone' + str(i) for i in range(1, 11)]
+from args import args_parser
 
 
 def load_data(file_name):
@@ -65,12 +66,12 @@ def nn_seq_wind(file_name, B):
     return train_x, train_y, test_x, test_y
 
 
-def train(nn):
+def train(args, nn):
     print('training...')
-    train_x, train_y, test_x, test_y = nn_seq_wind(nn.file_name, nn.B)
+    train_x, train_y, test_x, test_y = nn_seq_wind(nn.file_name, args.B)
     nn.len = len(train_x)
-    batch_size = nn.B
-    epochs = nn.E
+    batch_size = args.B
+    epochs = args.E
     batch = int(len(train_x) / batch_size)
     for epoch in range(epochs):
         for i in range(batch):
@@ -91,14 +92,13 @@ def get_mape(x, y):
     return np.mean(np.abs((x - y) / x))
 
 
-def test(nn):
-    global MAX, MIN
-    train_x, train_y, test_x, test_y = nn_seq_wind(nn.file_name, nn.B)
+def test(args, nn):
+    train_x, train_y, test_x, test_y = nn_seq_wind(nn.file_name, args.B)
     pred = []
-    batch = int(len(test_y) / nn.B)
+    batch = int(len(test_y) / args.B)
     for i in range(batch):
-        start = i * nn.B
-        end = start + nn.B
+        start = i * args.B
+        end = start + args.B
         res = nn.forward_prop(test_x[start:end], test_y[start:end])
         res = res.tolist()
         res = list(chain.from_iterable(res))
@@ -109,8 +109,13 @@ def test(nn):
           np.sqrt(mean_squared_error(test_y.flatten(), pred)))
 
 
-if __name__ == '__main__':
+def main():
+    args = args_parser()
     for client in clients_wind:
-        nn = BP(client, B=50, E=20, input_dim=28, lr=0.08)
-        train(nn)
-        test(nn)
+        nn = BP(args, client)
+        train(args, nn)
+        test(args, nn)
+
+
+if __name__ == '__main__':
+    main()

@@ -9,7 +9,7 @@ import copy
 import random
 import sys
 from itertools import chain
-
+from args import args_parser
 import numpy as np
 import torch
 
@@ -20,7 +20,6 @@ from torch import nn
 from torch.utils.data import Dataset, DataLoader
 from algorithms.bp_nn import load_data
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 clients_wind = ['Task1_W_Zone' + str(i) for i in range(1, 11)]
 
 
@@ -73,46 +72,37 @@ def nn_seq_wind(file_name, B):
 
 
 class FedAvg:
-    def __init__(self, options):
-        self.C = options['C']
-        self.E = options['E']
-        self.B = options['B']
-        self.K = options['K']
-        self.r = options['r']
-        self.input_dim = options['input_dim']
-        self.lr = options['lr']
-        self.clients = options['clients']
-        self.nn = ANN(input_dim=self.input_dim, name='server', B=self.B, E=self.E, lr=self.lr).to(device)
+    def __init__(self, args):
+        self.args = args
+        self.clients = args.clients
+        self.nn = ANN(args, name='server').to(args.device)
         self.nns = []
-        for i in range(self.K):
+        for i in range(args.K):
             temp = copy.deepcopy(self.nn)
             temp.name = self.clients[i]
             self.nns.append(temp)
 
     def server(self):
-        for t in range(self.r):
+        for t in range(self.args.r):
             print('round', t + 1, ':')
             # sampling
-            m = np.max([int(self.C * self.K), 1])
-            index = random.sample(range(0, self.K), m)  # st
+            m = np.max([int(self.args.C * self.args.K), 1])
+            index = random.sample(range(0, self.args.K), m)  # st
             # dispatch
             self.dispatch(index)
             # local updating
-            self.client_update(index)
+            self.client_update(index, t)
             # aggregation
             self.aggregation(index)
 
         return self.nn
 
     def aggregation(self, index):
-        s = 0.0
+        s = 0
         for j in index:
             # normal
             s += self.nns[j].len
-            # LA
-            # s += np.mean(self.nns[index[j]].loss)
-            # LS
-            # s += self.nns[index[j]].len * np.mean(self.nns[index[j]].loss)
+
         params = {}
         for k, v in self.nns[0].named_parameters():
             params[k] = torch.zeros_like(v.data)
@@ -122,21 +112,16 @@ class FedAvg:
                 params[k] += v.data * (self.nns[j].len / s)
 
         for k, v in self.nn.named_parameters():
-            v.data = params[k]
+            v.data = params[k].data.clone()
 
     def dispatch(self, index):
-        params = {}
-        with torch.no_grad():
-            for k, v in self.nn.named_parameters():
-                params[k] = copy.deepcopy(v)
         for j in index:
-            with torch.no_grad():
-                for k, v in self.nns[j].named_parameters():
-                    v.copy_(params[k])
+            for old_params, new_params in zip(self.nns[j].parameters(), self.nn.parameters()):
+                new_params.data = old_params.data.clone()
 
-    def client_update(self, index):  # update nn
+    def client_update(self, index, global_round):  # update nn
         for k in index:
-            self.nns[k] = train(self.nns[k])
+            self.nns[k] = train(self.args, self.nns[k], global_round)
 
     def global_test(self):
         model = self.nn
@@ -144,23 +129,33 @@ class FedAvg:
         c = clients_wind
         for client in c:
             model.name = client
-            test(model)
+            test(self.args, model)
 
 
-def train(ann):
-    ann.train()
-    Dtr, Dte = nn_seq_wind(ann.name, ann.B)
-    ann.len = len(Dtr)
+def train(args, model, global_round):
+    model.train()
+    Dtr, Dte = nn_seq_wind(model.name, args.B)
+    model.len = len(Dtr)
+    device = args.device
     loss_function = nn.MSELoss().to(device)
     loss = 0
-    optimizer = torch.optim.Adam(ann.parameters(), lr=ann.lr)
-    for epoch in range(ann.E):
+    if args.weight_decay != 0:
+        lr = args.lr * pow(args.weight_decay, global_round)
+    else:
+        lr = args.lr
+    if args.optimizer == 'adam':
+        optimizer = torch.optim.Adam(model.parameters(), lr=lr,
+                                     weight_decay=args.weight_decay)
+    else:
+        optimizer = torch.optim.SGD(model.parameters(), lr=lr,
+                                    momentum=0.9, weight_decay=args.weight_decay)
+    for epoch in range(args.E):
         cnt = 0
         for (seq, label) in Dtr:
             cnt += 1
             seq = seq.to(device)
             label = label.to(device)
-            y_pred = ann(seq)
+            y_pred = model(seq)
             loss = loss_function(y_pred, label)
             optimizer.zero_grad()
             loss.backward()
@@ -168,18 +163,19 @@ def train(ann):
 
         print('epoch', epoch, ':', loss.item())
 
-    return ann
+    return model
 
 
-def test(ann):
-    ann.eval()
-    Dtr, Dte = nn_seq_wind(ann.name, ann.B)
+def test(args, model):
+    model.eval()
+    Dtr, Dte = nn_seq_wind(model.name, args.B)
     pred = []
     y = []
+    device = args.device
     for (seq, target) in Dte:
         with torch.no_grad():
             seq = seq.to(device)
-            y_pred = ann(seq)
+            y_pred = model(seq)
             pred.extend(list(chain.from_iterable(y_pred.data.tolist())))
             y.extend(list(chain.from_iterable(target.data.tolist())))
     #
@@ -189,22 +185,13 @@ def test(ann):
           np.sqrt(mean_squared_error(y, pred)))
 
 
-def local():
-    # local training and testing
-    for client in clients_wind:
-        ann = ANN(input_dim=30, name=client, B=50, E=50, lr=0.08).to(device)
-        train(ann)
-        test(ann)
+def main():
+    args = args_parser()
+    fed = FedAvg(args)
+    fed.server()
+    fed.global_test()
 
 
 if __name__ == '__main__':
-    K, C, E, B, r = 10, 0.5, 10, 50, 5
-    input_dim = 28
-    _client = clients_wind
-    lr = 0.08
-    options = {'K': K, 'C': C, 'E': E, 'B': B, 'r': r, 'clients': _client,
-               'input_dim': input_dim, 'lr': lr}
-    fedavg = FedAvg(options)
-    fedavg.server()
-    fedavg.global_test()
+    main()
 

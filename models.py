@@ -10,26 +10,24 @@ from torch import nn
 
 
 class BP:
-    def __init__(self, file_name, B, E, input_dim, lr):
-        self.B = B
-        self.E = E
+    def __init__(self, args, file_name):
         self.file_name = file_name
-        self.lr = lr
         self.len = 0
-        self.input = np.zeros((self.B, input_dim))  # self.B samples per round
-        self.w1 = 2 * np.random.random((input_dim, 20)) - 1  # limit to (-1, 1)
-        self.z1 = 2 * np.random.random((self.B, 20)) - 1
-        self.hidden_layer_1 = np.zeros((self.B, 20))
+        self.args = args
+        self.input = np.zeros((args.B, args.input_dim))  # self.B samples per round
+        self.w1 = 2 * np.random.random((args.input_dim, 20)) - 1  # limit to (-1, 1)
+        self.z1 = 2 * np.random.random((args.B, 20)) - 1
+        self.hidden_layer_1 = np.zeros((args.B, 20))
         self.w2 = 2 * np.random.random((20, 20)) - 1
-        self.z2 = 2 * np.random.random((self.B, 20)) - 1
-        self.hidden_layer_2 = np.zeros((self.B, 20))
+        self.z2 = 2 * np.random.random((args.B, 20)) - 1
+        self.hidden_layer_2 = np.zeros((args.B, 20))
         self.w3 = 2 * np.random.random((20, 20)) - 1
-        self.z3 = 2 * np.random.random((self.B, 20)) - 1
-        self.hidden_layer_3 = np.zeros((self.B, 20))
+        self.z3 = 2 * np.random.random((args.B, 20)) - 1
+        self.hidden_layer_3 = np.zeros((args.B, 20))
         self.w4 = 2 * np.random.random((20, 1)) - 1
-        self.z4 = 2 * np.random.random((self.B, 1)) - 1
-        self.output_layer = np.zeros((self.B, 1))
-        self.loss = np.zeros((self.B, 1))
+        self.z4 = 2 * np.random.random((args.B, 1)) - 1
+        self.output_layer = np.zeros((args.B, 1))
+        self.loss = np.zeros((args.B, 1))
 
     def sigmoid(self, x):
         return 1 / (1 + np.exp(-x))
@@ -70,23 +68,20 @@ class BP:
         l_deri_z1 = l_deri_h1 * self.sigmoid_deri(self.hidden_layer_1)
         l_deri_w1 = np.dot(self.input.T, l_deri_z1)
         # update
-        self.w4 -= self.lr * l_deri_w4
-        self.w3 -= self.lr * l_deri_w3
-        self.w2 -= self.lr * l_deri_w2
-        self.w1 -= self.lr * l_deri_w1
+        self.w4 -= self.args.lr * l_deri_w4
+        self.w3 -= self.args.lr * l_deri_w3
+        self.w2 -= self.args.lr * l_deri_w2
+        self.w1 -= self.args.lr * l_deri_w1
 
 
 class ANN(nn.Module):
-    def __init__(self, input_dim, name, B, E, lr):
+    def __init__(self, args, name):
         super(ANN, self).__init__()
         self.name = name
-        self.B = B
-        self.E = E
         self.len = 0
-        self.lr = lr
         self.loss = 0
         self.sigmoid = nn.Sigmoid()
-        self.fc1 = nn.Linear(input_dim, 20)
+        self.fc1 = nn.Linear(args.input_dim, 20)
         self.fc2 = nn.Linear(20, 20)
         self.fc3 = nn.Linear(20, 20)
         self.fc4 = nn.Linear(20, 1)

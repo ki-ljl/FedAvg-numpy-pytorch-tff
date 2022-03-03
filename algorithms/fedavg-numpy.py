@@ -10,37 +10,33 @@ import numpy as np
 import random
 import copy
 import sys
+
 sys.path.append('../')
 from algorithms.bp_nn import train, test
 from models import BP
+from args import args_parser
 
 clients_wind = ['Task1_W_Zone' + str(i) for i in range(1, 11)]
 
 
 class FedAvg:
-    def __init__(self, options):
-        self.C = options['C']
-        self.E = options['E']
-        self.B = options['B']
-        self.K = options['K']
-        self.r = options['r']
-        self.clients = options['clients']
-        self.lr = options['lr']
-        self.input_dim = options['input_dim']
-        self.nn = BP(file_name='server', B=B, E=E, input_dim=self.input_dim, lr=self.lr)
+    def __init__(self, args):
+        self.args = args
+        self.clients = args.clients
+        self.nn = BP(args=args, file_name='server')
         self.nns = []
         # distribution
-        for i in range(self.K):
+        for i in range(self.args.K):
             s = copy.deepcopy(self.nn)
             s.file_name = self.clients[i]
             self.nns.append(s)
 
     def server(self):
-        for t in range(self.r):
+        for t in range(self.args.r):
             print('round', t + 1, ':')
-            m = np.max([int(self.C * self.K), 1])
+            m = np.max([int(self.args.C * self.args.K), 1])
             # sampling
-            index = random.sample(range(0, self.K), m)
+            index = random.sample(range(0, self.args.K), m)
             # dispatch
             self.dispatch(index)
             # local updating
@@ -57,10 +53,6 @@ class FedAvg:
         for j in index:
             # normal
             s += self.nns[j].len
-            # LA
-            # s += np.mean(self.nns[index[j]].loss)
-            # LS
-            # s += self.nns[index[j]].len * np.mean(self.nns[index[j]].loss)
         w1 = np.zeros_like(self.nn.w1)
         w2 = np.zeros_like(self.nn.w2)
         w3 = np.zeros_like(self.nn.w3)
@@ -71,16 +63,6 @@ class FedAvg:
             w2 += self.nns[j].w2 * (self.nns[j].len / s)
             w3 += self.nns[j].w3 * (self.nns[j].len / s)
             w4 += self.nns[j].w4 * (self.nns[j].len / s)
-            # LA
-            # w1 += self.nns[j].w1 * (np.mean(self.nns[j].loss) / s)
-            # w2 += self.nns[j].w2 * (np.mean(self.nns[j].loss) / s)
-            # w3 += self.nns[j].w3 * (np.mean(self.nns[j].loss) / s)
-            # w4 += self.nns[j].w4 * (np.mean(self.nns[j].loss) / s)
-            # LS
-            # w1 += self.nns[j].w1 * (self.nns[j].len * np.mean(self.nns[j].loss) / s)
-            # w2 += self.nns[j].w2 * (self.nns[j].len * np.mean(self.nns[j].loss) / s)
-            # w3 += self.nns[j].w3 * (self.nns[j].len * np.mean(self.nns[j].loss) / s)
-            # w4 += self.nns[j].w4 * (self.nns[j].len * np.mean(self.nns[j].loss) / s)
         # update server
         self.nn.w1, self.nn.w2, self.nn.w3, self.nn.w4 = w1, w2, w3, w4
 
@@ -92,23 +74,22 @@ class FedAvg:
 
     def client_update(self, index):  # update nn
         for k in index:
-            self.nns[k] = train(self.nns[k])
+            self.nns[k] = train(self.args, self.nns[k])
 
     def global_test(self):
         model = self.nn
         c = clients_wind
         for client in c:
             model.file_name = client
-            test(model)
+            test(self.args, model)
+
+
+def main():
+    args = args_parser()
+    fed = FedAvg(args)
+    fed.server()
+    fed.global_test()
 
 
 if __name__ == '__main__':
-    K, C, E, B, r = 10, 0.5, 20, 50, 10
-    input_dim = 28
-    _client = clients_wind
-    lr = 0.08
-    options = {'K': K, 'C': C, 'E': E, 'B': B, 'r': r, 'clients': _client,
-               'input_dim': input_dim, 'lr': lr}
-    fedavg = FedAvg(options)
-    fedavg.server()
-    fedavg.global_test()
+    main()

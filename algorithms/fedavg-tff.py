@@ -13,6 +13,8 @@ from algorithms.bp_nn import load_data
 import tensorflow as tf
 import tensorflow_federated as tff
 import nest_asyncio
+from args import args_parser
+args = args_parser()
 
 nest_asyncio.apply()
 tf.compat.v1.enable_v2_behavior()
@@ -58,7 +60,7 @@ def client_data_wind(n, B, train_flag):
 # Wrap a Keras model for use with TFF.
 def model_fn():
     metrics = [tf.keras.metrics.MeanAbsoluteError()]
-    input_dim = 28
+    input_dim = args.input_dim
     model = tf.keras.models.Sequential([
         tf.keras.layers.Dense(20, tf.nn.sigmoid, input_shape=(input_dim,),
                               kernel_initializer='zeros'),
@@ -82,11 +84,11 @@ def FedAvg():
         # use_experimental_simulation_loop=True
     )
     state = trainer.initialize()
-    for r in range(5):
+    for r in range(args.r):
         state, metrics = trainer.next(state, train_data)
         print('round', r + 1, 'loss:', metrics['train']['loss'])
     evaluation = tff.learning.build_federated_evaluation(model_fn)
-    for i in range(10):
+    for i in range(args.K):
         test_data = [client_data_wind(n, 20, train_flag=False) for n in range(i, i + 1)]
         # print('test:')
         test_metrics = evaluation(state.model, test_data)
@@ -95,5 +97,5 @@ def FedAvg():
 
 
 if __name__ == '__main__':
-    train_data = [client_data_wind(n, 20, train_flag=True) for n in range(10)]
+    train_data = [client_data_wind(n, 20, train_flag=True) for n in range(args.K)]
     FedAvg()
