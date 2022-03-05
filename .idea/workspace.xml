@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="a0269252-3d28-433e-ba69-85bf1edc2936" name="默认更改列表" comment="" />
+    <list default="true" id="a0269252-3d28-433e-ba69-85bf1edc2936" name="默认更改列表" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algorithms/fedavg-pytorch.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/fedavg-pytorch.py" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,7 +40,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.fedavg-tff">
+  <component name="RunManager" selected="Python.fedavg-pytorch">
     <configuration name="bp_nn" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="FedAvg" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -150,10 +153,10 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.fedavg-tff" />
         <item itemvalue="Python.fedavg-pytorch" />
         <item itemvalue="Python.fedavg-numpy" />
         <item itemvalue="Python.bp_nn" />
+        <item itemvalue="Python.fedavg-tff" />
         <item itemvalue="Python.fedavg" />
       </list>
     </recent_temporary>
@@ -170,6 +173,9 @@
       <updated>1646110310871</updated>
       <workItem from="1646110326276" duration="689000" />
       <workItem from="1646143026980" duration="3460000" />
+      <workItem from="1646312390537" duration="4194000" />
+      <workItem from="1646363066486" duration="1705000" />
+      <workItem from="1646483535088" duration="1314000" />
     </task>
     <servers />
   </component>
@@ -181,7 +187,9 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
           </value>
         </entry>
       </map>
@@ -190,8 +198,8 @@
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/FedAvg$fedavg_tff.coverage" NAME="fedavg-tff Coverage Results" MODIFIED="1646146010263" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/algorithms" />
     <SUITE FILE_PATH="coverage/FedAvg$fedavg.coverage" NAME="fedavg Coverage Results" MODIFIED="1646144764066" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/algorithms" />
-    <SUITE FILE_PATH="coverage/FedAvg$fedavg_pytorch.coverage" NAME="fedavg-pytorch Coverage Results" MODIFIED="1646145932510" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/algorithms" />
-    <SUITE FILE_PATH="coverage/FedAvg$fedavg_numpy.coverage" NAME="fedavg-numpy Coverage Results" MODIFIED="1646145876069" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/algorithms" />
-    <SUITE FILE_PATH="coverage/FedAvg$bp_nn.coverage" NAME="bp_nn Coverage Results" MODIFIED="1646145837060" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/algorithms" />
+    <SUITE FILE_PATH="coverage/FedAvg$fedavg_pytorch.coverage" NAME="fedavg-pytorch Coverage Results" MODIFIED="1646484805772" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/algorithms" />
+    <SUITE FILE_PATH="coverage/FedAvg$fedavg_numpy.coverage" NAME="fedavg-numpy Coverage Results" MODIFIED="1646484726430" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/algorithms" />
+    <SUITE FILE_PATH="coverage/FedAvg$bp_nn.coverage" NAME="bp_nn Coverage Results" MODIFIED="1646484714320" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/algorithms" />
   </component>
 </project>
