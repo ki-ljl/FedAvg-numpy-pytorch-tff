@@ -13,5 +13,5 @@ tensorflow-federated==0.17.0
 
 # Usage
 ```python
-python bp_nn/fedavg_.py
+python fedavg-numpy.py
 ```
