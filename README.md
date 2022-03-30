@@ -10,8 +10,3 @@ pytorch==1.10.1+cu111
 tensorflow==2.3.4
 
 tensorflow-federated==0.17.0
-
-# Usage
-```python
-python fedavg-numpy.py
-```
