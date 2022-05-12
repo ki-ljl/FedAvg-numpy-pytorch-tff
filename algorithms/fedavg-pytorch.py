@@ -159,7 +159,7 @@ def train(args, model):
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            lr_step.step()
+        lr_step.step()
 
         print('epoch', epoch, ':', loss.item())
 
