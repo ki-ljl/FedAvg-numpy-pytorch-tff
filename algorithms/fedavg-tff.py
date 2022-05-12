@@ -95,6 +95,8 @@ def FedAvg():
         m = 'mean_absolute_error'
         print(str(test_metrics[m] / len(test_data[0])))
 
+    print(state.model)
+
 
 if __name__ == '__main__':
     train_data = [client_data_wind(n, 20, train_flag=True) for n in range(args.K)]

@@ -21,7 +21,9 @@ def args_parser():
     parser.add_argument('--B', type=int, default=50, help='local batch size')
     parser.add_argument('--optimizer', type=str, default='adam', help='type of optimizer')
     parser.add_argument('--device', default=torch.device("cuda" if torch.cuda.is_available() else "cpu"))
-    parser.add_argument('--weight_decay', type=float, default=1e-4, help='learning rate decay per global round')
+    parser.add_argument('--weight_decay', type=float, default=1e-4, help='weight_decay')
+    parser.add_argument('--step_size', type=int, default=10, help='step size')
+    parser.add_argument('--gamma', type=float, default=0.1, help='gamma')
     clients = ['Task1_W_Zone' + str(i) for i in range(1, 11)]
     parser.add_argument('--clients', default=clients)
 

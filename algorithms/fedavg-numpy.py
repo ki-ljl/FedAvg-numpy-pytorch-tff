@@ -19,6 +19,7 @@ from args import args_parser
 clients_wind = ['Task1_W_Zone' + str(i) for i in range(1, 11)]
 
 
+# Implementation for FedAvg by numpy.
 class FedAvg:
     def __init__(self, args):
         self.args = args

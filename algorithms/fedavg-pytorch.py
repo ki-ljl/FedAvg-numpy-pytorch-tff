@@ -12,6 +12,7 @@ from itertools import chain
 from args import args_parser
 import numpy as np
 import torch
+from torch.optim.lr_scheduler import StepLR
 
 sys.path.append('../')
 from sklearn.metrics import mean_absolute_error, mean_squared_error
@@ -91,7 +92,7 @@ class FedAvg:
             # dispatch
             self.dispatch(index)
             # local updating
-            self.client_update(index, t)
+            self.client_update(index)
             # aggregation
             self.aggregation(index)
 
@@ -119,9 +120,9 @@ class FedAvg:
             for old_params, new_params in zip(self.nns[j].parameters(), self.nn.parameters()):
                 old_params.data = new_params.data.clone()
 
-    def client_update(self, index, global_round):  # update nn
+    def client_update(self, index):  # update nn
         for k in index:
-            self.nns[k] = train(self.args, self.nns[k], global_round)
+            self.nns[k] = train(self.args, self.nns[k])
 
     def global_test(self):
         model = self.nn
@@ -132,23 +133,21 @@ class FedAvg:
             test(self.args, model)
 
 
-def train(args, model, global_round):
+def train(args, model):
     model.train()
     Dtr, Dte = nn_seq_wind(model.name, args.B)
     model.len = len(Dtr)
     device = args.device
     loss_function = nn.MSELoss().to(device)
     loss = 0
-    if args.weight_decay != 0:
-        lr = args.lr * pow(args.weight_decay, global_round)
-    else:
-        lr = args.lr
+    lr = args.lr
     if args.optimizer == 'adam':
         optimizer = torch.optim.Adam(model.parameters(), lr=lr,
                                      weight_decay=args.weight_decay)
     else:
         optimizer = torch.optim.SGD(model.parameters(), lr=lr,
                                     momentum=0.9, weight_decay=args.weight_decay)
+    lr_step = StepLR(optimizer, step_size=args.step_size, gamma=args.gamma)
     for epoch in range(args.E):
         cnt = 0
         for (seq, label) in Dtr:
@@ -160,6 +159,7 @@ def train(args, model, global_round):
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+            lr_step.step()
 
         print('epoch', epoch, ':', loss.item())
 

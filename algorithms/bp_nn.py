@@ -85,9 +85,9 @@ def train(args, nn):
 
 def get_mape(x, y):
     """
-    :param x:true
-    :param y:pred
-    :return:MAPE
+    :param x: true value
+    :param y: pred value
+    :return: mape
     """
     return np.mean(np.abs((x - y) / x))
 
