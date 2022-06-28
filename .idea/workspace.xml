@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="a0269252-3d28-433e-ba69-85bf1edc2936" name="默认更改列表" comment="默认更改列表">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algorithms/bp_nn.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/bp_nn.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/algorithms/fedavg-pytorch.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/fedavg-pytorch.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -34,10 +35,10 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="G:/mianbaoduo/Timeseries-Forecasting/LSTM-Load-Forecasting" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
-  <component name="RunManager" selected="Python.fedavg-pytorch">
+  <component name="RunManager" selected="Python.fedavg-numpy">
     <configuration name="bp_nn" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="FedAvg" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -150,10 +151,10 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.fedavg-pytorch" />
         <item itemvalue="Python.fedavg-numpy" />
-        <item itemvalue="Python.fedavg-tff" />
         <item itemvalue="Python.bp_nn" />
+        <item itemvalue="Python.fedavg-pytorch" />
+        <item itemvalue="Python.fedavg-tff" />
         <item itemvalue="Python.fedavg" />
       </list>
     </recent_temporary>
@@ -182,6 +183,9 @@
       <workItem from="1652367403452" duration="699000" />
       <workItem from="1652368496372" duration="35000" />
       <workItem from="1652370569431" duration="39000" />
+      <workItem from="1655607462546" duration="18000" />
+      <workItem from="1655907253861" duration="735000" />
+      <workItem from="1656425681834" duration="1517000" />
     </task>
     <servers />
   </component>
@@ -202,8 +206,8 @@
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/FedAvg$fedavg.coverage" NAME="fedavg Coverage Results" MODIFIED="1646144764066" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/algorithms" />
     <SUITE FILE_PATH="coverage/FedAvg$fedavg_tff.coverage" NAME="fedavg-tff Coverage Results" MODIFIED="1650513631497" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/algorithms" />
-    <SUITE FILE_PATH="coverage/FedAvg$fedavg_pytorch.coverage" NAME="fedavg-pytorch Coverage Results" MODIFIED="1652370601219" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/algorithms" />
-    <SUITE FILE_PATH="coverage/FedAvg$fedavg_numpy.coverage" NAME="fedavg-numpy Coverage Results" MODIFIED="1652367501987" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/algorithms" />
-    <SUITE FILE_PATH="coverage/FedAvg$bp_nn.coverage" NAME="bp_nn Coverage Results" MODIFIED="1646888734912" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/algorithms" />
+    <SUITE FILE_PATH="coverage/FedAvg$fedavg_pytorch.coverage" NAME="fedavg-pytorch Coverage Results" MODIFIED="1656427099974" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/algorithms" />
+    <SUITE FILE_PATH="coverage/FedAvg$fedavg_numpy.coverage" NAME="fedavg-numpy Coverage Results" MODIFIED="1656427154691" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/algorithms" />
+    <SUITE FILE_PATH="coverage/FedAvg$bp_nn.coverage" NAME="bp_nn Coverage Results" MODIFIED="1656427120817" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/algorithms" />
   </component>
 </project>

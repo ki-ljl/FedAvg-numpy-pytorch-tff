@@ -9,6 +9,9 @@ import copy
 import random
 import sys
 from itertools import chain
+
+from tqdm import tqdm
+
 from args import args_parser
 import numpy as np
 import torch
@@ -37,39 +40,41 @@ class MyDataset(Dataset):
 
 def nn_seq_wind(file_name, B):
     print('data processing...')
-    data = load_data(file_name)
-    columns = data.columns
-    wind = data[columns[2]]
-    wind = wind.tolist()
-    data = data.values.tolist()
-    X, Y = [], []
-    seq = []
-    for i in range(len(data) - 30):
-        train_seq = []
-        train_label = []
-        for j in range(i, i + 24):
-            train_seq.append(wind[j])
-        for c in range(3, 7):
-            train_seq.append(data[i + 24][c])
-        train_label.append(wind[i + 24])
-        train_seq = torch.FloatTensor(train_seq).view(-1)
-        train_label = torch.FloatTensor(train_label).view(-1)
-        seq.append((train_seq, train_label))
+    dataset = load_data(file_name)
+    # split
+    train = dataset[:int(len(dataset) * 0.6)]
+    val = dataset[int(len(dataset) * 0.6):int(len(dataset) * 0.8)]
+    test = dataset[int(len(dataset) * 0.8):len(dataset)]
 
-    Dtr = seq[0:int(len(seq) * 0.8)]
-    Dte = seq[int(len(seq) * 0.8):len(seq)]
+    def process(data):
+        columns = data.columns
+        wind = data[columns[2]]
+        wind = wind.tolist()
+        data = data.values.tolist()
+        seq = []
+        for i in range(len(data) - 30):
+            train_seq = []
+            train_label = []
+            for j in range(i, i + 24):
+                train_seq.append(wind[j])
+            for c in range(3, 7):
+                train_seq.append(data[i + 24][c])
+            train_label.append(wind[i + 24])
+            train_seq = torch.FloatTensor(train_seq).view(-1)
+            train_label = torch.FloatTensor(train_label).view(-1)
+            seq.append((train_seq, train_label))
 
-    train_len = int(len(Dtr) / B) * B
-    test_len = int(len(Dte) / B) * B
-    Dtr, Dte = Dtr[:train_len], Dte[:test_len]
+        seq = MyDataset(seq)
 
-    train = MyDataset(Dtr)
-    test = MyDataset(Dte)
+        seq = DataLoader(dataset=seq, batch_size=B, shuffle=False, num_workers=0)
 
-    Dtr = DataLoader(dataset=train, batch_size=B, shuffle=False, num_workers=0)
-    Dte = DataLoader(dataset=test, batch_size=B, shuffle=False, num_workers=0)
+        return seq
 
-    return Dtr, Dte
+    Dtr = process(train)
+    Val = process(val)
+    Dte = process(test)
+
+    return Dtr, Val, Dte
 
 
 class FedAvg:
@@ -84,7 +89,7 @@ class FedAvg:
             self.nns.append(temp)
 
     def server(self):
-        for t in range(self.args.r):
+        for t in tqdm(range(self.args.r)):
             print('round', t + 1, ':')
             # sampling
             m = np.max([int(self.args.C * self.args.K), 1])
@@ -133,13 +138,27 @@ class FedAvg:
             test(self.args, model)
 
 
+def get_val_loss(args, model, Val):
+    model.eval()
+    loss_function = nn.MSELoss().to(args.device)
+    val_loss = []
+    for (seq, label) in Val:
+        with torch.no_grad():
+            seq = seq.to(args.device)
+            label = label.to(args.device)
+            y_pred = model(seq)
+            loss = loss_function(y_pred, label)
+            val_loss.append(loss.item())
+
+    return np.mean(val_loss)
+
+
 def train(args, model):
     model.train()
-    Dtr, Dte = nn_seq_wind(model.name, args.B)
+    Dtr, Val, Dte = nn_seq_wind(model.name, args.B)
     model.len = len(Dtr)
     device = args.device
     loss_function = nn.MSELoss().to(device)
-    loss = 0
     lr = args.lr
     if args.optimizer == 'adam':
         optimizer = torch.optim.Adam(model.parameters(), lr=lr,
@@ -148,27 +167,37 @@ def train(args, model):
         optimizer = torch.optim.SGD(model.parameters(), lr=lr,
                                     momentum=0.9, weight_decay=args.weight_decay)
     lr_step = StepLR(optimizer, step_size=args.step_size, gamma=args.gamma)
-    for epoch in range(args.E):
-        cnt = 0
+    # training
+    min_epochs = 10
+    best_model = None
+    min_val_loss = 5
+    for epoch in tqdm(range(args.E)):
+        train_loss = []
         for (seq, label) in Dtr:
-            cnt += 1
             seq = seq.to(device)
             label = label.to(device)
             y_pred = model(seq)
             loss = loss_function(y_pred, label)
+            train_loss.append(loss.item())
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
         lr_step.step()
+        # validation
+        val_loss = get_val_loss(args, model, Val)
+        if epoch + 1 >= min_epochs and val_loss < min_val_loss:
+            min_val_loss = val_loss
+            best_model = copy.deepcopy(model)
 
-        print('epoch', epoch, ':', loss.item())
+        print('epoch {:03d} train_loss {:.8f} val_loss {:.8f}'.format(epoch, np.mean(train_loss), val_loss))
+        model.train()
 
-    return model
+    return best_model
 
 
 def test(args, model):
     model.eval()
-    Dtr, Dte = nn_seq_wind(model.name, args.B)
+    Dtr, Val, Dte = nn_seq_wind(model.name, args.B)
     pred = []
     y = []
     device = args.device
